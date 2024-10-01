@@ -35,13 +35,13 @@ class Ra8_MPU:
             4:'H',
             5:'L',
             6:'M'
-
         }
 
         #Class objects
         self.bitwise = bitwise()
         self.stack = Stack(self.dataMemory,self.stackPointer)
 
+        #Boolean variable that keeps track of the MPU's current state
         self._halted = False
     
     def setFlag(self,flag,val:bool): #sets the flag to the given value
@@ -162,6 +162,7 @@ class Ra8_MPU:
             address = (high_byte << 8) | low_byte      
             self.dataMemory[address] = getattr(self,(self.registerMap[regindex]))
             self.programCounter +=2
+
         elif currentInstruction == 0x37: #STR instructions (store M register values to memory)
             high_byte = self.instructionMemory[self.programCounter + 1]
             low_byte = self.instructionMemory[self.programCounter]
@@ -181,7 +182,6 @@ class Ra8_MPU:
             regindex = 6 if currentInstruction == 0x3d else regindex
             regValue = getattr(self,(self.registerMap[regindex]))
             self.stack.Push(regValue)
-            self.programCounter += 1
 
         elif currentInstruction in range(0x3e,0x43): #POP instructions
             regindex = currentInstruction - 0x003d
@@ -189,7 +189,6 @@ class Ra8_MPU:
             register = self.registerMap[regindex]
             data = self.stack.Pop()
             setattr(self,register,data)
-            self.programCounter += 1
         
         elif currentInstruction == 0x43:#LDX instruction
             high_byte = self.H
@@ -380,46 +379,54 @@ class Ra8_MPU:
             regindex = 6 if currentInstruction == 0x66 else regindex
             register = self.registerMap[regindex]
             self.A = self.A + register 
+            self.handleFlags(self.A)
 
         elif currentInstruction in range(0x67,0x6b): #ADC instruction
             regindex = currentInstruction - 0x0066
             regindex = 6 if currentInstruction == 0x6a else regindex
             register = self.registerMap[regindex]
             self.A = self.A + register + self.flags['C']
+            self.handleFlags(self.A)
         
         elif currentInstruction == 0x6b: #ADI instruction
             data = self.instructionMemory[self.porgramCounter]
             self.A = self.A = data
             self.programCounter += 1
+            self.handleFlags(self.A)
         
         elif currentInstruction in range(0x6c,0x70): #SUB instruction
             regindex = currentInstruction - 0x006b
             regindex = 6 if currentInstruction == 0x6f else regindex
             register = self.registerMap[regindex]
             self.A = self.A - register 
+            self.handleFlags(self.A)
 
         elif currentInstruction in range(0x70,0x74): #SUC instruction
             regindex = currentInstruction - 0x6f
             regindex = 6 if currentInstruction == 0x73 else regindex
             register = self.registerMap[regindex]
-            self.A = self.A - (register + (1 -self.flags['C']))
+            self.A = self.A - (register + (1 - self.flags['C']))
+            self.handleFlags(self.A)
         
         elif currentInstruction == 0x74: #SUI instruction
             data = self.instructionMemory[self.porgramCounter]
             self.A = self.A = data
             self.programCounter += 1
+            self.handleFlags(self.A)
 
         elif currentInstruction in range(0x75,0x79): #INC instruction
             regindex = currentInstruction - 0x006b
             regindex = 6 if currentInstruction == 0x6f else regindex
             register = self.registerMap[regindex]
             register += 1
+            self.handleFlags(self.A)
         
         elif currentInstruction in range(0x79,0x7d): #DCR instruction
             regindex = currentInstruction - 0x006b
             regindex = 6 if currentInstruction == 0x6f else regindex
             register = self.registerMap[regindex]
             register -= 1
+            self.handleFlags(self.A)
         
         elif currentInstruction == 0x7d: #INX  instruction
             high_byte = self.H
@@ -454,8 +461,66 @@ class Ra8_MPU:
                     self.bitwise.Logic_rightRotate(self.A)  
                 case 8:#ARR instructions
                     self.bitwise.Arithmetic_rightRotate(self.A)
-            self.programCounter +=1                                                                                                                                           
+            self.handleFlags(self.A)
+            self.programCounter +=1 
+
+        elif currentInstruction in range(0x87,0x8b): #AND instruction
+            regindex = currentInstruction - 0x0086
+            regindex = 6 if currentInstruction == 0x8a else regindex
+            register = self.registerMap[regindex]
+            register = self.A & register
         
+        elif currentInstruction == 0x8f: #ANI instruction
+            data = self.instructionMemory[self.programCounter]
+            self.A = self.A & data
+            self.programCounter += 1
+
+        elif currentInstruction in range(0x87,0x8b): #OR instruction
+            regindex = currentInstruction - 0x0086
+            regindex = 6 if currentInstruction == 0x8a else regindex
+            register = self.registerMap[regindex]
+            register = self.A | register
+        
+        elif currentInstruction == 0x8f: #ORI instruction
+            data = self.instructionMemory[self.programCounter]
+            self.A = self.A | data
+            self.programCounter += 1
+
+        elif currentInstruction in range(0x87,0x8b): #XOR instruction
+            regindex = currentInstruction - 0x0086
+            regindex = 6 if currentInstruction == 0x8a else regindex
+            register = self.registerMap[regindex]
+            register = self.A ^ register
+        
+        elif currentInstruction == 0x8f: #XRI instruction
+            data = self.instructionMemory[self.programCounter]
+            self.A = self.A ^ data  
+            self.programCounter += 1
+
+        elif currentInstruction in range(0x9f,0xa3): #CMP instruction
+            regindex = currentInstruction - 0x0086
+            regindex = 6 if currentInstruction == 0x8a else regindex
+            register = self.registerMap[regindex]
+            temp = self.A - register
+            self.handleFlags(temp)
+
+        elif currentInstruction == 0xa3: #CMI instruction
+            data = self.instructionMemory[self.programCounter]
+            temp = self.A - data
+            self.handleFlags(temp)
+
+        elif currentInstruction == 0xa7: #CMC instruction
+            self.flags('C') = not self.flags('C')
+        
+        elif currentInstruction == 0xa8: #STC instruction
+            self.setFlag('C',True)
+
+        elif currentInstruction == 0xa9: #STC instruction
+            self.setFlag('C',False)
+
+        elif currentInstruction == 0xaa: #CMA instruction
+            self.A = not self.A
+                                                                                                                                                        
 class bitwise: #To perform bitwise operations
     def Logic_rightShift(self,value:int):
         val = (value >> 1) & 0xff

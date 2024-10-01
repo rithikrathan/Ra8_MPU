@@ -101,7 +101,7 @@ MACHINE DESCRIPTION:
          OPCODE | OPERAND : DESCRIPTION
          ----------------------------------------------------------------
                >AND reg   : accumulator = accumulator & register
-               >ADI reg   : accumulator = accumulator & immediate value
+               >ANI reg   : accumulator = accumulator & immediate value
                >OR  reg   : accumulator = accumulator | register
                >ORI reg   : accumulator = accumulator | immediate value
                >XOR reg   : accumulator = accumulator ^ register
