@@ -4,7 +4,7 @@ MACHINE DESCRIPTION:
         >Turing complete
         >8-bit data width
         >16-bit address width
-        >10-registers (5- general puropse registers, 2-indirect addressing registers, 1-flags register, 1-instruction register)       
+        >9-registers (5- general puropse registers, 2-indirect addressing registers, 1-flags register, 1-instruction register)       
         >16-bit programCounter
         >16-bit stackPointer
         >Memory_mapped I/O
@@ -24,7 +24,7 @@ MACHINE DESCRIPTION:
 
         >Flags:
              Flags in flags register (8-bit):       [S|-|Z|-|P|-|C|-]
-                                               MSB >[7|6|5|4|3|2|1|0]< LSB
+                                               MSB >[8|7|6|5|4|3|2|1]< LSB
 
              Flag : Condition   
              ----------------------------------      
