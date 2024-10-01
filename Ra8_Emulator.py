@@ -349,35 +349,113 @@ class Ra8_MPU:
             Type = currentInstruction - 0x59
             match (Type):
                 case 1: #Unconditional RET instructions
-                    self.programcounter = returnAddress
+                    self.programCounter = returnAddress
                 case 2: 
                     if self.flags['C'] == True: #RC instruction 
-                        self.programcounter = returnAddress
+                        self.programCounter = returnAddress
                 case 3:
                     if self.flags['C'] == False: #RNC instruction 
-                        self.programcounter = returnAddress
+                        self.programCounter = returnAddress
                 case 4:
                     if self.flags['Z'] == True: #RZ instruction
-                        self.programcounter = returnAddress
+                        self.programCounter = returnAddress
                 case 5:
                     if self.flags['Z'] == False: #RNZ instructioN
-                        self.programcounter = returnAddress
+                        self.programCounter = returnAddress
                 case 6:
                     if self.flags['S'] == False: #RP instructioN
-                        self.programcounter = returnAddress
+                        self.programCounter = returnAddress
                 case 7:
                     if self.flags['S'] == True: #RM instructioN
-                        self.programcounter = returnAddress
+                        self.programCounter = returnAddress
                 case 8:
                     if self.flags['P'] == True: #RE instructioN
-                        self.programcounter = returnAddress
+                        self.programCounter = returnAddress
                 case 9:
                     if self.flags['P'] == False: #RO instructioN
-                        self.programcounter = returnAddress
+                        self.programCounter = returnAddress
 
-        elif 1:
-            pass
+        elif currentInstruction in range(0x63,0x67):#ADD instruction
+            regindex = currentInstruction - 0x0062
+            regindex = 6 if currentInstruction == 0x66 else regindex
+            register = self.registerMap[regindex]
+            self.A = self.A + register 
 
+        elif currentInstruction in range(0x67,0x6b): #ADC instruction
+            regindex = currentInstruction - 0x0066
+            regindex = 6 if currentInstruction == 0x6a else regindex
+            register = self.registerMap[regindex]
+            self.A = self.A + register + self.flags['C']
+        
+        elif currentInstruction == 0x6b: #ADI instruction
+            data = self.instructionMemory[self.porgramCounter]
+            self.A = self.A = data
+            self.programCounter += 1
+        
+        elif currentInstruction in range(0x6c,0x70): #SUB instruction
+            regindex = currentInstruction - 0x006b
+            regindex = 6 if currentInstruction == 0x6f else regindex
+            register = self.registerMap[regindex]
+            self.A = self.A - register 
+
+        elif currentInstruction in range(0x70,0x74): #SUC instruction
+            regindex = currentInstruction - 0x6f
+            regindex = 6 if currentInstruction == 0x73 else regindex
+            register = self.registerMap[regindex]
+            self.A = self.A - (register + (1 -self.flags['C']))
+        
+        elif currentInstruction == 0x74: #SUI instruction
+            data = self.instructionMemory[self.porgramCounter]
+            self.A = self.A = data
+            self.programCounter += 1
+
+        elif currentInstruction in range(0x75,0x79): #INC instruction
+            regindex = currentInstruction - 0x006b
+            regindex = 6 if currentInstruction == 0x6f else regindex
+            register = self.registerMap[regindex]
+            register += 1
+        
+        elif currentInstruction in range(0x79,0x7d): #DCR instruction
+            regindex = currentInstruction - 0x006b
+            regindex = 6 if currentInstruction == 0x6f else regindex
+            register = self.registerMap[regindex]
+            register -= 1
+        
+        elif currentInstruction == 0x7d: #INX  instruction
+            high_byte = self.H
+            low_byte = self.L
+            data = (high_byte << 8) | low_byte
+            data = data + 1 
+            self.H = (data >> 8) & 0xff  
+
+        elif currentInstruction == 0x7e: #DCX instruction
+            high_byte = self.H
+            low_byte = self.L
+            data = (high_byte << 8) | low_byte
+            data = data - 1 
+            self.H = (data >> 8) & 0xff          
+
+        elif currentInstruction in range(0x007f,0x0087): #Bitwise Rotate and Shift instructions          
+            Type = currentInstruction - 0x7e
+            match (Type):
+                case 1:#RS instructions
+                    self.bitwise.Logic_rightShift(self.A) 
+                case 2:#ARS instructions
+                    self.bitwise.Arithmetic_rightShift(self.A) 
+                case 3:#LS instructions
+                    self.bitwise.Logic_leftShift(self.A) 
+                case 4:#ALS instructions
+                    self.bitwise.Arithmetic_leftShift(self.A) 
+                case 5:#LR instructions
+                    self.bitwise.Logic_leftRotate(self.A) 
+                case 6:#ALR instructions
+                    self.bitwise.Arithmetic_leftRotate(self.A)  
+                case 7:#RR instructions
+                    self.bitwise.Logic_rightRotate(self.A)  
+                case 8:#ARR instructions
+                    self.bitwise.Arithmetic_rightRotate(self.A)
+            self.programCounter +=1                                                                                                                                           
+        
 class bitwise: #To perform bitwise operations
     def Logic_rightShift(self,value:int):
         val = (value >> 1) & 0xff
