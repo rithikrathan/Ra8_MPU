@@ -140,6 +140,16 @@ MACHINE DESCRIPTION:
                >LR  reg   : Logic left rotate
                >ARR reg   : Arithmetic right rotate
                >ALR reg   : Arithmetic left rotate
+    
+    Assembler:
+            
+            >Lexical Analyzer  : Breaks down input assembly code into tokens
+            >Praser            : Validates the systax of the tokens
+            >Code Generator    : Converts mnemonics into machine code by looking them up in the CSV-based opcode table
+            >Lable             : A label is identified by the '$' followed by the label name, Everytime a 
+                                           label is created the corresoponding address is stored  dictionary.
+            >Macros            : 
+
             
 
 
