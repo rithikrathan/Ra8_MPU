@@ -1,7 +1,7 @@
 import glob
 import os
 
-print('salutations my fellow humanoids')
+print('Salutations my fellow humanoids')
 print()
 
 def getFile(directory = 'Assembly_code'):
@@ -34,7 +34,13 @@ def getFile(directory = 'Assembly_code'):
             print('Invalid choice enter a number!')
 
 filePath,fileName = getFile()
+inputFile = open(filePath).read()
+lines = inputFile.splitlines()
+print('File contents:\n')
+print(inputFile)
+print(lines)
 
+labelTablel = {}
 
 
 
