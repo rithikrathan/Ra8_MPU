@@ -8,7 +8,7 @@ instructionMemory = emulator.instructionMemory
 programCounter = emulator.programCounter
 stackPointer = emulator.stackPointer
 
-machineCode = 'machine code/factorial.txt'
+machineCode = 'Machine_code/factorial.txt'
 
 lines = open(machineCode).read().splitlines()
 

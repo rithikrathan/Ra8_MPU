@@ -1,10 +1,11 @@
 import glob
 import os
+import csv 
 
 print('Salutations my fellow humanoids')
 print()
 
-def getFile(directory = 'Assembly_code'):
+def getFile(directory = 'Example_Assembly_code'):
     asm_files = glob.glob(directory + '/*.asm')
 
     if not asm_files:
@@ -33,14 +34,48 @@ def getFile(directory = 'Assembly_code'):
         except:
             print('Invalid choice enter a number!')
 
+def tokenize(lines):
+    tokens = []
+    labelTable = {}
+    memAddr = 0
+    
+    for line in lines:
+        line = line.strip()
+
+        if not line: #EMPTY LINE HANDLING
+            memAddr += 1
+            continue 
+
+        token = {'lineNumber':memAddr}
+
+        #%#%#%#%#%#%#%# COMMENT HANDLING #%#%#%#%%%#%#%#    
+
+        commentPos = line.find('/')
+        if commentPos != -1:
+            token['comment'] = line[commentPos +1 :].strip()
+            line = line[:commentPos].strip()
+
+        #%#%#%#%#%#%#%# LABEL HANDLING #%#%#%#%%%#%#%#  
+
+        if line.startswith('$') and ':' in line:
+            labelPos = line.find(':')
+            label = line[1:labelPos].strip()
+            labelTable[label] = memAddr
+            token['label'] = label
+            line = line[labelPos +1:].strip()
+
+        #%#%#%#%#%#%#%# COMMENT HANDLING #%#%#%#%%%#%#%#  
+
+        if line: token['instruction'] = line
+        tokens.append(token)
+
+    return tokens,labelTable
+
 filePath,fileName = getFile()
 inputFile = open(filePath).read()
 lines = inputFile.splitlines()
-print('File contents:\n')
-print(inputFile)
-print(lines)
-
-labelTablel = {}
-
+tokens,lableTable = tokenize(lines)
+print(f'tokens:',tokens)
+print(f'LableTable:',lableTable)
 
 
