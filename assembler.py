@@ -83,7 +83,7 @@ def loadCSV(csv_file):
 def lookUp(instr):
     index = instr.find('0x')
     if index != -1:
-        instruction,data = instr[:index - 1],instr[index:]
+        instruction,data = instr[:index - 1].strip(),instr[index:].strip()
         machineCode = instructionSet[instruction]
         data = int(data,16)
         if data > 0xff:
@@ -93,27 +93,28 @@ def lookUp(instr):
         elif data <= 0xff and data >= 0x00:
             lowByte = hex(data & 0xff)
             highByte = hex(0)
-        return machineCode,lowByte,highByte
+        return [machineCode,lowByte,highByte]
     else:
         machineCode = instructionSet[instr]
         machineCode = hex(int(machineCode,16))
-        return machineCode
+        return [machineCode]
     
-
 filePath,fileName = getFile()
 inputFile = open(filePath).read()
 lines = inputFile.splitlines()
 tokens,lableTable = tokenize(lines)
-for i in tokens:
-    print(f'"{i['instruction']}"')
+#for i in tokens:
+#    print(f'"{i['instruction']}"')
 
 instructionSet = loadCSV('files/Instructions.csv')
 
 for token in tokens:
     inst = token['instruction']
     MC = lookUp(inst)
-    if isinstance(MC,list):
+    if MC:
         for i in MC:
             print(i)
-    elif isinstance(MC,int):
-        print(hex(MC))
+    else:
+        print('Error instruction not found')
+    
+
