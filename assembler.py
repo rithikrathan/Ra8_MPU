@@ -25,7 +25,7 @@ def getFile(directory = 'Example_Assembly_code'):
             choice = int(input('Enter the index of your choice:'))
             if 0 <= choice < len(asm_files):
                 path = asm_files[choice]
-                name = os.path.basename(file)
+                name = os.path.basename(path)
                 print(f'{name} will be assembled into Machine_code directory.')
                 return path,name 
             
@@ -43,7 +43,6 @@ def tokenize(lines):
         line = line.strip()
 
         if not line: #EMPTY LINE HANDLING
-            memAddr += 1
             continue 
 
         token = {'lineNumber':memAddr}
@@ -68,6 +67,7 @@ def tokenize(lines):
 
         if line: token['instruction'] = line
         tokens.append(token)
+        memAddr += 1
 
     return tokens,labelTable
 
@@ -75,7 +75,9 @@ filePath,fileName = getFile()
 inputFile = open(filePath).read()
 lines = inputFile.splitlines()
 tokens,lableTable = tokenize(lines)
-print(f'tokens:',tokens)
-print(f'LableTable:',lableTable)
-
+print(f'tokens:')
+for token in tokens:
+    print(token)
+print(f'LableTable:')
+print(lableTable)
 

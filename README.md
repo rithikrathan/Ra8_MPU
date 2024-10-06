@@ -37,7 +37,7 @@ MACHINE DESCRIPTION:
 
         >Stack pointer: Stores address that points the top of the stack (16-bit)
 
-        >Program counter: Stores the current address of the instructions memory (16-bit)
+        >Program counter: Stores the next instruction address for the instructions memory (16-bit)
 
     Instruction Set:
         MACHINE CONTROL:
@@ -56,11 +56,11 @@ MACHINE DESCRIPTION:
                     >LDA  : accumulator/mem (direct addressing)
                     >LDI  : accumulator/8-bit immediate value
                     >STR  : mem/register(A,B,C,D,M)
-                    >PUSH : mem[--sp]/register(A,B,C,D,M)/HL pair
-                    >POP  : register(A,B,C,D,M)/HL pair
+                    >PUSH : mem[--sp]/register(A,B,C,D,M)
+                    >POP  : register(A,B,C,D,M)
                     >LDX  : accumulator/mem(HL pair indirect addressing) 
                     >STX  : mem(HL pair)/accumulator
-                    >LDHL : HL pair/16-bit address
+                    >LDHL : HL pair/16-bit data
                     >PCHL : programCounter/HL pair
                     >SPHL : stackPointer/HL pair
                 

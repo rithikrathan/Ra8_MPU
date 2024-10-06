@@ -1,7 +1,7 @@
 $START: LDI 04
 
 MOV B,A
-LOOP: DCR B /loop that does n*(n-1)
+$LOOP: DCR B /loop that does n*(n-1)
 JZ END
 MOV C,A
 MOV D,B

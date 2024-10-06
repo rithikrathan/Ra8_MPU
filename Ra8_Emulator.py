@@ -189,21 +189,21 @@ class Ra8_MPU:
             self.dataMemory[address] = getattr(self,(self.registerMap['A']))
 
         elif currentInstruction == 0x45: #LDHL instruction
-            self.H = self.dataMemory[self.programCounter + 1]
-            self.L = self.dataMemory[self.programCounter]
+            self.H = self.instructionMemory[self.programCounter + 1]
+            self.L = self.instructionMemory[self.programCounter]
             self.programCounter += 2
         
         elif currentInstruction == 0x46: #PCHL instruction
             high_byte = self.H
             low_byte = self.L
             address = (high_byte << 8) | low_byte      
-            self.programCounter = self.dataMemory[address]
+            self.programCounter = address
         
         elif currentInstruction == 0x47: #SPHL instruction
             high_byte = self.H
             low_byte = self.L
             address = (high_byte << 8) | low_byte      
-            self.stackPointer = self.dataMemory[address]
+            self.stackPointer = address
         
         elif currentInstruction in range(0x48,0x51): #Unconditional and Conditional jump instructions
             Type = currentInstruction - 0x47
