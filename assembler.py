@@ -28,7 +28,6 @@ def getFile(directory = 'Example_Assembly_code'):
                 name = os.path.basename(path)
                 print(f'{name} will be assembled into Machine_code directory.')
                 return path,name 
-            
             else:
                 print('Invalid choice enter a valid index!')
         except:
@@ -71,13 +70,50 @@ def tokenize(lines):
 
     return tokens,labelTable
 
+assemblyFile = 'Example_Assembly_code/FACTORIAL.asm' 
+def loadCSV(csv_file):
+    instruction_set = {}
+    with open(csv_file,mode='r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            key = f'{row['OPCODE']} {row['OPERAND']}'.strip()
+            instruction_set[key] = row['MACHINE CODE']
+    return instruction_set
+
+def lookUp(instr):
+    index = instr.find('0x')
+    if index != -1:
+        instruction,data = instr[:index - 1],instr[index:]
+        machineCode = instructionSet[instruction]
+        data = int(data,16)
+        if data > 0xff:
+            highByte = hex(data >> 8 & 0xff)
+            lowByte = hex(data & 0xff)
+
+        elif data <= 0xff and data >= 0x00:
+            lowByte = hex(data & 0xff)
+            highByte = hex(0)
+        return machineCode,lowByte,highByte
+    else:
+        machineCode = instructionSet[instr]
+        machineCode = hex(int(machineCode,16))
+        return machineCode
+    
+
 filePath,fileName = getFile()
 inputFile = open(filePath).read()
 lines = inputFile.splitlines()
 tokens,lableTable = tokenize(lines)
-print(f'tokens:')
-for token in tokens:
-    print(token)
-print(f'LableTable:')
-print(lableTable)
+for i in tokens:
+    print(f'"{i['instruction']}"')
 
+instructionSet = loadCSV('files/Instructions.csv')
+
+for token in tokens:
+    inst = token['instruction']
+    MC = lookUp(inst)
+    if isinstance(MC,list):
+        for i in MC:
+            print(i)
+    elif isinstance(MC,int):
+        print(hex(MC))
