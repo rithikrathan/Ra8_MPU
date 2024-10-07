@@ -82,18 +82,26 @@ def loadCSV(csv_file):
 
 def lookUp(instr):
     index = instr.find('0x')
+    labelIndex = instr.find('$')
+    lowByte = None
+    highByte = None
     if index != -1:
         instruction,data = instr[:index - 1].strip(),instr[index:].strip()
         machineCode = instructionSet[instruction]
         data = int(data,16)
-        if data > 0xff:
+
+        if data > 0xff or machineCode in _3byteinstructions:
             highByte = hex(data >> 8 & 0xff)
             lowByte = hex(data & 0xff)
 
         elif data <= 0xff and data >= 0x00:
             lowByte = hex(data & 0xff)
-            highByte = hex(0)
-        return [machineCode,lowByte,highByte]
+            
+        if highByte is not None:
+            return [machineCode,lowByte,highByte]
+        else:
+            return [machineCode,lowByte]
+
     else:
         machineCode = instructionSet[instr]
         machineCode = hex(int(machineCode,16))
@@ -103,10 +111,15 @@ filePath,fileName = getFile()
 inputFile = open(filePath).read()
 lines = inputFile.splitlines()
 tokens,lableTable = tokenize(lines)
+_3byteinstructions = ['0x0032', '0x0034', '0x0035', '0x0036', '0x0037', 
+                      '0x0038', '0x0045', '0x0048', '0x0049', '0x004A', 
+                      '0x004B', '0x004C', '0x004D', '0x004E', '0x004F', 
+                      '0x0050', '0x0051', '0x0052', '0x0053', '0x0054', 
+                      '0x0055', '0x0056', '0x0057', '0x0058', '0x0059']
 #for i in tokens:
 #    print(f'"{i['instruction']}"')
 
-instructionSet = loadCSV('files/Instructions.csv')
+instructionSet= loadCSV('files/Instructions.csv')
 
 for token in tokens:
     inst = token['instruction']

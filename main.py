@@ -21,7 +21,7 @@ dataMemory[0x06] = 4
 
 #%#%#%#%#% EXECUTE #%#%#%#%#%
 
-emulator.run(debug=True)
+emulator.run(debug=False)
 
 #%#%#%#%#% OUTPUT #%#%#%#%#%
 
