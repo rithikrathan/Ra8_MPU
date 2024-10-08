@@ -425,14 +425,14 @@ class Ra8_MPU:
                 self.flags['C'] = False
 
         elif currentInstruction in range(0x75,0x79): #INC instruction
-            regindex = currentInstruction - 0x006b
+            regindex = currentInstruction - 0x0074
             regindex = 6 if currentInstruction == 0x6f else regindex
             register = getattr(self,self.registerMap[regindex])
             setattr(self,self.registerMap[regindex],register + 1)
             self.handleFlags(self.A)
         
         elif currentInstruction in range(0x79,0x7d): #DCR instruction
-            regindex = currentInstruction - 0x006b
+            regindex = currentInstruction - 0x0078
             regindex = 6 if currentInstruction == 0x6f else regindex
             register = getattr(self,self.registerMap[regindex])
             setattr(self,self.registerMap[regindex],register - 1)
@@ -501,7 +501,7 @@ class Ra8_MPU:
         elif currentInstruction in range(0x97,0x9b): #XOR instruction
             regindex = currentInstruction - 0x0096
             regindex = 6 if currentInstruction == 0x9a else regindex
-            register = self.registerMap[regindex]
+            register = getattr(self,self.registerMap[regindex])
             register = self.A ^ register
         
         elif currentInstruction == 0x9b: #XRI instruction

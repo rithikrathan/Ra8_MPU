@@ -8,7 +8,7 @@ instructionMemory = emulator.instructionMemory
 programCounter = emulator.programCounter
 stackPointer = emulator.stackPointer
 
-machineCode = 'Machine_code/test is it working?.txt'
+machineCode = 'Machine_code/factorial.txt'
 
 lines = open(machineCode).read().splitlines()
 
@@ -17,17 +17,14 @@ for index,value in enumerate(lines):
 
 #%#%#%#%#% INPUT DATA #%#%#%#%#%
 
-dataMemory[0x06] = 4
-
 #%#%#%#%#% EXECUTE #%#%#%#%#%
 
-emulator.run(debug=False)
+emulator.run(debug=True)
 
 #%#%#%#%#% OUTPUT #%#%#%#%#%
 
 print("OUTPUT:")
 print(dataMemory[0x0000])
-print(dataMemory[0x0001])
 print('___________________________________________________________________')
 
 
