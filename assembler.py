@@ -43,8 +43,7 @@ def getFile(directory = 'Example_Assembly_code'):
 
 def tokenize(lines):
     tokens = []
-    labelTable = {}
-    memAddr = 0
+    linNO = 0
     
     for line in lines:
         line = line.strip()
@@ -52,7 +51,7 @@ def tokenize(lines):
         if not line: #EMPTY LINE HANDLING
             continue 
 
-        token = {'lineNumber':memAddr}
+        token = {'lineNumber':linNO}
 
         #%#%#%#%#%#%#%# COMMENT HANDLING #%#%#%#%%%#%#%#    
 
@@ -71,7 +70,6 @@ def tokenize(lines):
         if line.startswith('$') and ':' in line:
             labelPos = line.find(':')
             label = line[1:labelPos].strip()
-            labelTable[label] = memAddr
             token['label'] = label
             line = line[labelPos +1:].strip()
 
@@ -79,20 +77,40 @@ def tokenize(lines):
 
         if line: token['instruction'] = line
         tokens.append(token)
-        memAddr += 1
+        linNO += 1
 
-    return tokens,labelTable
+    return tokens
 
 assemblyFile = 'Example_Assembly_code/FACTORIAL.asm' 
 
 def loadCSV(csv_file):#load the csv file to use as a instruction set
-    instruction_set = {}
-    with open(csv_file,mode='r') as file:
+    instructionSet = {}
+    instructionSize = {}
+    with open(csv_file,mode = 'r') as file:
         reader = csv.DictReader(file)
+        
         for row in reader:
             key = f'{row['OPCODE']} {row['OPERAND']}'.strip()
-            instruction_set[key] = row['MACHINE CODE']
-    return instruction_set
+            instructionSet[key] = row['MACHINE CODE']
+            instructionSize[key] = row['BYTES']
+
+    return instructionSet,instructionSize
+
+def setLabel_addr(tokens,instructionSize):
+    labelTable = {}
+    memAddr = 0
+
+    for token in tokens:
+        currentInstr = token['instruction']
+        index = currentInstr.find('0x')
+        currentInstr = currentInstr[:index - 1].strip()
+        
+        if token['label']:
+            label = token['label']
+            labelTable[label] = memAddr
+            memAddr += int(instructionSize[currentInstr],16)
+    
+    return labelTable
 
 def lookUp(instr):#takes the instruction and generates the corresponding mnemonics
     index = instr.find('0x') #checks if an instruction contains an address/immediate values
@@ -103,9 +121,9 @@ def lookUp(instr):#takes the instruction and generates the corresponding mnemoni
     lowByte = None
     highByte = None
     
-    if label in lableTable and labelindex != -1:#if a label is found then replace it with the address where it is defined
+    if label in labelTable and labelindex != -1:#if a label is found then replace it with the address where it is defined
         try:
-            address = lableTable[label]
+            address = labelTable[label]
             lowByte = hex(address & 0xff)
             highByte = hex((address >> 8) & 0xff)
             machineCode = instructionSet[instruction]
@@ -113,6 +131,7 @@ def lookUp(instr):#takes the instruction and generates the corresponding mnemoni
         
         except KeyError:
             print(f'Error: {label} => lable not defined')
+            
     else:#if label not found then ignore
         pass
 
@@ -138,24 +157,31 @@ def lookUp(instr):#takes the instruction and generates the corresponding mnemoni
         machineCode = hex(int(machineCode,16))
         return [machineCode]
     
-
-
     #%#%#%#%#%#%#%#%#% THE ACTUAL ASSEMBLER #%#%#%#%#%#%#%#%#%#
-
 
 filePath,fileName = getFile()
 inputFile = open(filePath).read()
 lines = inputFile.splitlines()
-tokens,lableTable = tokenize(lines)
-instructionSet= loadCSV('files/Instructions.csv')
-#%#%#%#%#% CODE GENERATION #%#%#%#%#%#%#%
+tokens = tokenize(lines)
 for token in tokens:
-    inst = token['instruction']
-    MC = lookUp(inst)
-    if MC:
-        for i in MC:
-            print(i)
-    else:
-        print('Error instruction not found')
+    print(token)
+instructionSet,instructionSize= loadCSV('files/Instructions.csv')
+print(instructionSet,instructionSize)
+labelTable = setLabel_addr(tokens,instructionSize)
+
+#%#%#%#%#% CODE GENERATION #%#%#%#%#%#%#%
+
+def main():
+    for token in tokens:
+        inst = token['instruction']
+        MC = lookUp(inst)
+        if MC:
+            for i in MC:
+                print(i)
+        else:
+            print('Error instruction not found')
+
+if __name__ == '__main__':
+    main() 
     
 

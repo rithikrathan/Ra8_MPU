@@ -1,3 +1,13 @@
+print("""
+  _____        ___
+ |  __ \      / _ \ 
+ | |__) |__ _| (_) |
+ |  _  // _` |> _ < 
+ | | \ \ (_| | (_) |
+ |_|  \_\__,_|\___/ 
+""")
+
+
 class Ra8_MPU:
     def __init__(self) -> None:
         #Setting up the device memory 64kb each(16 bit address lines)
@@ -18,7 +28,7 @@ class Ra8_MPU:
         self.M = 0
         self.instructionRegister = 0
 
-        #Setting up  flags register
+        #Setting up flags register
         self.flags = {
             'S':False,
             'C':False,

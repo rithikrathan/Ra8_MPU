@@ -1,5 +1,12 @@
 MACHINE DESCRIPTION:
 
+          ___                       
+        //   ) )             __    
+       //___/ /   ___      //  ) ) 
+      / ___ (   //   ) )  ((_ / /  
+     //   | |  //   / /  //  ) )   
+    //    | | ((___( (  ((__/ /    
+
     Features:
         >Turing complete
         >8-bit data width
